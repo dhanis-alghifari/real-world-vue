@@ -3,7 +3,12 @@
 </script>
 
 <template>
-  <div class="home">
-    
+  <div class="greetings">
+   
   </div>
 </template>
+
+<style scoped>
+ 
+</style>
+ 
