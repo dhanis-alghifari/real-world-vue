@@ -11,10 +11,28 @@ const router = createRouter({
     },
     {
       path: '/event/:id',
-      name: 'event-details',
+      name: 'event-layout',
       props:  true,
-      component: () => import('../views/EventDetailsView.vue')
+      component: () => import('../views/event/LayoutEvent.vue'),
+      children: [
+        {
+          path: '',
+          name: 'event-details',
+          component: () => import('../views/event/EventDetails.vue')
+        },
+        {
+          path: 'register',
+          name: 'event-register',
+          component: () => import('../views/event/RegisterEvent.vue')
+        },
+        {
+          path: 'edit',
+          name: 'event-edit',
+          component: () => import('../views/event/EditEvent.vue')
+        },
+      ]
     },
+   
     {
       path: '/about',
       name: 'about',
