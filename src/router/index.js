@@ -10,7 +10,7 @@ const router = createRouter({
       props: route => ({page: parseInt(route.query.page) || 1})
     },
     {
-      path: '/event/:id',
+      path: '/events/:id',
       name: 'event-layout',
       props:  true,
       component: () => import('../views/event/LayoutEvent.vue'),
@@ -31,6 +31,14 @@ const router = createRouter({
           component: () => import('../views/event/EditEvent.vue')
         },
       ]
+    },
+    {
+      path: '/event/:afterEvent(.*)',
+      redirect: to => {
+        return { path: `/events/${to.params.afterEvent}`}
+      }
+
+
     },
    
     {
