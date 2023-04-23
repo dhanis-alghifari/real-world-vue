@@ -4,19 +4,27 @@
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
+import { inject } from 'vue'
+import { useRouter } from 'vue-router'
 
-defineProps({
+const props = defineProps({
   event: {
     required: true
   }
 })
 
-const router = useRouter();
+const msg = inject('GStore')
+const router = useRouter()
 
 const register = () => {
-    router.push({
-        name: "event-details"
-    })
+  router.push({
+    name: 'event-details'
+  })
+
+  msg.flashMessage = `You are succesfully registered ${props.event.title}`
+
+  setTimeout(() => {
+    msg.flashMessage = ''
+  }, 3000)
 }
 </script>
