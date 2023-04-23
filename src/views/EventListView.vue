@@ -2,6 +2,8 @@
 import EventCard from '@/components/EventCard.vue'
 import { computed, onMounted, ref, watchEffect } from 'vue'
 import EventService from '@/services/EventService'
+import { useRouter } from "vue-router";
+
 
 const props = defineProps({
   page: {
@@ -12,6 +14,7 @@ const props = defineProps({
 
 const events = ref([])
 const totalEvents = ref(0)
+const router = useRouter();
 
 onMounted(() => {
   watchEffect(() => {
@@ -23,6 +26,9 @@ onMounted(() => {
       })
       .catch((error) => {
         console.log('error', error)
+        router.push({
+          name: 'network-error'
+        })
       })
   })
 })

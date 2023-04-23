@@ -37,15 +37,29 @@ const router = createRouter({
       redirect: to => {
         return { path: `/events/${to.params.afterEvent}`}
       }
-
-
     },
-   
     {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue')
-    }
+    },
+    {
+      path: '/:catchAll(.*)',
+      name: 'not-found',
+      component: () => import('../views/NotFound.vue')
+    },
+    {
+      path: '/404/:resource',
+      name: '404-resource',
+      component: () => import('../views/NotFound.vue'),
+      props: true
+    },
+    {
+      path: '/network-error',
+      name: 'network-error',
+      component: () => import('../views/NetworkError.vue')
+    },
+
   ]
 })
 
