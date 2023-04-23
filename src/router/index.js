@@ -6,7 +6,8 @@ const router = createRouter({
     {
       path: '/',
       name: 'event-list',
-      component: () => import('../views/EventListView.vue')
+      component: () => import('../views/EventListView.vue'),
+      props: route => ({page: parseInt(route.query.page) || 1})
     },
     {
       path: '/event/:id',
