@@ -1,68 +1,84 @@
-<script setup>
-import EventCard from '@/components/EventCard.vue'
-import { computed, onMounted, ref, watchEffect } from 'vue'
-import EventService from '@/services/EventService'
-import { useRouter } from "vue-router";
-
-
-const props = defineProps({
-  page: {
-    type: Number,
-    required: true
-  }
-})
-
-const events = ref([])
-const totalEvents = ref(0)
-const router = useRouter();
-
-onMounted(() => {
-  watchEffect(() => {
-    events.value = []
-    EventService.getEvents(2, props.page)
-      .then((response) => {
-        events.value = response.data
-        totalEvents.value = response.headers['x-total-count']
-      })
-      .catch((error) => {
-        console.log('error', error)
-        router.push({
-          name: 'network-error'
-        })
-      })
-  })
-})
-
-const hasNextPage = computed(() => {
-  let totalPages = Math.ceil(totalEvents.value / 2)
-  return props.page < totalPages
-})
-</script>
-
 <template>
-  <h1>Event For Good</h1>
+  <h1>Events for Good</h1>
   <div class="events">
     <EventCard v-for="event in events" :key="event.id" :event="event" />
 
     <div class="pagination">
       <router-link
-        :to="{ name: 'event-list', query: { page: props.page - 1 } }"
+        id="page-prev"
+        :to="{ name: 'event-list', query: { page: page - 1 } }"
         rel="prev"
-        v-if="page !== 1"
+        v-if="page != 1"
+        >&#60; Previous</router-link
       >
-        Prev Page
-      </router-link>
 
       <router-link
-        :to="{ name: 'event-list', query: { page: props.page + 1 } }"
+        id="page-next"
+        :to="{ name: 'event-list', query: { page: page + 1 } }"
         rel="next"
         v-if="hasNextPage"
+        >Next &#62;</router-link
       >
-        Next Page
-      </router-link>
     </div>
   </div>
 </template>
+
+<script>
+import EventCard from '@/components/EventCard.vue'
+import EventService from '@/services/EventService.js'
+import NProgress from 'nprogress'
+
+export default {
+  name: 'EventList',
+  props: ['page'],
+  components: {
+    EventCard
+  },
+  data() {
+    return {
+      events: null,
+      totalEvents: 0
+    }
+  },
+  beforeRouteEnter(routeTo, routeFrom, next) {
+    NProgress.start()
+    EventService.getEvents(2, parseInt(routeTo.query.page) || 1)
+      .then(response => {
+        next(comp => {
+          comp.events = response.data
+          comp.totalEvents = response.headers['x-total-count']
+        })
+      })
+      .catch(() => {
+        next({ name: 'network-error' })
+      })
+      .finally(() => {
+        NProgress.done()
+      })
+  },
+  beforeRouteUpdate(routeTo) {
+    NProgress.start()
+    EventService.getEvents(2, parseInt(routeTo.query.page) || 1)
+      .then(response => {
+        this.events = response.data
+        this.totalEvents = response.headers['x-total-count']
+      })
+      .catch(() => {
+        return { name: 'network-error' }
+      })
+      .finally(() => {
+        NProgress.done()
+      })
+  },
+  computed: {
+    hasNextPage() {
+      var totalPages = Math.ceil(this.totalEvents / 2)
+
+      return this.page < totalPages
+    }
+  }
+}
+</script>
 
 <style scoped>
 .events {
@@ -70,7 +86,6 @@ const hasNextPage = computed(() => {
   flex-direction: column;
   align-items: center;
 }
-
 .pagination {
   display: flex;
   width: 290px;
