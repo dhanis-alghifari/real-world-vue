@@ -1,4 +1,7 @@
+import EventService from '@/services/EventService'
+import nprogress from 'nprogress'
 import { createRouter, createWebHistory } from 'vue-router'
+import GStore from '../stores/store'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,13 +10,32 @@ const router = createRouter({
       path: '/',
       name: 'event-list',
       component: () => import('../views/EventListView.vue'),
-      props: route => ({page: parseInt(route.query.page) || 1})
+      props: (route) => ({ page: parseInt(route.query.page) || 1 })
     },
     {
       path: '/events/:id',
       name: 'event-layout',
-      props:  true,
+      props: true,
       component: () => import('../views/event/LayoutEvent.vue'),
+      beforeEnter: (to) => {
+      return EventService.getDetailEvent(to.params.id)
+          .then((response) => {
+            GStore.event = response.data
+          })
+          .catch((error) => {
+            console.log('error', error)
+            if (error.response && error.response.status === 404) {
+              return {
+                name: '404-resource',
+                params: { resource: 'event' }
+              }
+            } else {
+              return {
+                name: 'network-error'
+              }
+            }
+          })
+      },
       children: [
         {
           path: '',
@@ -29,13 +51,13 @@ const router = createRouter({
           path: 'edit',
           name: 'event-edit',
           component: () => import('../views/event/EditEvent.vue')
-        },
+        }
       ]
     },
     {
       path: '/event/:afterEvent(.*)',
-      redirect: to => {
-        return { path: `/events/${to.params.afterEvent}`}
+      redirect: (to) => {
+        return { path: `/events/${to.params.afterEvent}` }
       }
     },
     {
@@ -58,9 +80,16 @@ const router = createRouter({
       path: '/network-error',
       name: 'network-error',
       component: () => import('../views/NetworkError.vue')
-    },
-
+    }
   ]
+})
+
+router.beforeEach(() => {
+  nprogress.start()
+})
+
+router.afterEach(() => {
+  nprogress.done()
 })
 
 export default router

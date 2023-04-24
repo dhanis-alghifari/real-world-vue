@@ -1,6 +1,6 @@
 <template>
-  <div v-if="event">
-    <h1>{{ event.title }}</h1>
+  <div v-if="msg.event">
+    <h1>{{ msg.event.title }}</h1>
     <div id="nav">
       <router-link :to="{ name: 'event-details' }">Details</router-link>
       |
@@ -8,42 +8,15 @@
       |
       <router-link :to="{ name: 'event-edit' }">Edit</router-link>
     </div>
-    <router-view :event="event" />
+    <router-view :event="msg.event" />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import EventService from '@/services/EventService'
-import { useRouter } from 'vue-router'
+import { inject } from "vue";
 
-const event = ref({})
-const props = defineProps({
-  id: {
-    required: true
-  }
-})
-const router = useRouter()
 
-onMounted(() => {
-  EventService.getDetailEvent(props.id)
-    .then((response) => {
-      event.value = response.data
-    })
-    .catch((error) => {
-      console.log('error', error)
-      if (error.response && error.response.status === 404) {
-        router.push({
-          name: '404-resource',
-          params: { resource: 'event' }
-        })
-      } else {
-        router.push({
-          name: 'network-error'
-        })
-      }
-    })
-})
+const msg = inject('GStore')
 </script>
 
 <style>
